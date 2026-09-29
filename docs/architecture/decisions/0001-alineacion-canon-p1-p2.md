@@ -8,7 +8,7 @@
 
 ## Contexto
 
-La flota se homogeneiza con `Iniciativas-Alexendros/repo-standard` (main): nombres de jobs, Renovate, docs contractuales y meta-sección «Propósito». Este repo es la **plantilla de landing**, no el esqueleto meta. Ya tenía CI monolítico (`quality` + `e2e` required) y Dependabot version-updates.
+La flota se homogeneiza con `Soluciones-Alexendros/repo-standard` (main): nombres de jobs, Renovate, docs contractuales y meta-sección «Propósito». Este repo es la **plantilla de landing**, no el esqueleto meta. Ya tenía CI monolítico (`quality` + `e2e` required) y Dependabot version-updates.
 
 `repo-standard` no era accesible (404) al aplicar esta decisión; se usó el contrato resumido P0+P1+P2 de la oleada.
 
