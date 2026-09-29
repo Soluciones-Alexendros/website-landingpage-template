@@ -4,25 +4,35 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+    inputs:
+      e2e:
+        description: Ejecutar Playwright + axe (opt-in)
+        type: boolean
+        default: false
 
-# Cancela runs antiguos del mismo ref al empujar nuevos commits.
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   quality:
-    # Runner self-hosted de la org con fallback a github-hosted.
-    runs-on: ${{ vars.CI_RUNNER && fromJSON(vars.CI_RUNNER) || 'ubuntu-latest' }}
+    name: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
-      # La versión de pnpm se toma de "packageManager" en package.json.
       - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version-file: ".nvmrc"
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
@@ -36,31 +46,140 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
-      - name: Test
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: ".nvmrc"
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Unit + integration (Vitest)
         run: pnpm test
 
       - name: Cobertura (umbrales)
         run: pnpm --filter @landing/web test:coverage
 
-      - name: Build
-        run: pnpm build
-
-  e2e:
-    runs-on: ${{ vars.CI_RUNNER && fromJSON(vars.CI_RUNNER) || 'ubuntu-latest' }}
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version-file: ".nvmrc"
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Build
+        run: pnpm build
+
+      - name: Upload Next.js artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-build
+          # `.next` es un directorio oculto; sin esto upload-artifact no encuentra archivos.
+          include-hidden-files: true
+          path: |
+            apps/landing/.next
+            !apps/landing/.next/cache
+          if-no-files-found: error
+
+  smoke:
+    name: smoke
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: ".nvmrc"
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Download Next.js artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: next-build
+          path: apps/landing/.next
+
+      - name: Smoke HTTP
+        run: pnpm smoke
+
+  e2e:
+    # Job siempre presente (status check verde) para no bloquear branch protection
+    # si `e2e` sigue listado. Playwright solo corre en opt-in.
+    name: e2e
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Resolver opt-in
+        id: gate
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          DISPATCH_E2E: ${{ github.event_name == 'workflow_dispatch' && inputs.e2e }}
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: |
+          run=false
+          if [ "$DISPATCH_E2E" = "true" ]; then
+            run=true
+          fi
+          case ",${PR_LABELS}," in
+            *,e2e,*) run=true ;;
+          esac
+          echo "run=${run}" >> "$GITHUB_OUTPUT"
+          if [ "$run" != "true" ]; then
+            echo "e2e opt-in: añade la label e2e o lanza workflow_dispatch con e2e=true"
+          fi
+
+      - uses: actions/checkout@v7
+        if: steps.gate.outputs.run == 'true'
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@v6
+        if: steps.gate.outputs.run == 'true'
+
+      - uses: actions/setup-node@v7
+        if: steps.gate.outputs.run == 'true'
+        with:
+          node-version-file: ".nvmrc"
+          cache: pnpm
+
+      - if: steps.gate.outputs.run == 'true'
+        run: pnpm install --frozen-lockfile
+
       - name: Instalar navegador de Playwright
+        if: steps.gate.outputs.run == 'true'
         run: pnpm --filter @landing/web exec playwright install --with-deps chromium
 
       - name: E2E (Playwright)
+        if: steps.gate.outputs.run == 'true'
         run: pnpm --filter @landing/web test:e2e
+        env:
+          CI: true

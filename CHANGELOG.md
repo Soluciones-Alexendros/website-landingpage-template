@@ -6,6 +6,12 @@ y el versionado [SemVer](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Changed
+
+- Alineación al canon P1+P2 de plantilla: jobs CI `quality` / `test` / `build` /
+  `smoke`, e2e opt-in, Renovate en lugar de Dependabot version-updates, docs P1
+  (`AGENTS`, `ARCHITECTURE`, guides/runbooks/ADRs) y meta-sección Propósito.
+
 ### Added
 
 - Capa de gobernanza: LICENSE, CONTRIBUTING, SECURITY, CODEOWNERS, plantillas de

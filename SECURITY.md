@@ -1,5 +1,11 @@
 # Política de seguridad de landing-ab-testing
 
+### Propósito de este documento
+
+- **Objetivos:** Declarar versiones soportadas, el canal privado de avisos y la superficie (formulario, tracking, PII).
+- **Estructura:** Versiones → reporte → SLA → superficie → Renovate.
+- **Contenido a integrar según contexto:** Adapta endpoints y env de esta plantilla. No copies la política de un SaaS ni un desk de comunidad. No commitees `.env` ni claves.
+
 ## Versiones soportadas
 
 | Versión        | Soporte de seguridad |
@@ -33,3 +39,5 @@ Incluye en el reporte:
 - Captura de leads (PII): no se registra PII en logs; el correo de bienvenida escapa la
   entrada de usuario.
 - Cabeceras de seguridad (CSP, HSTS, etc.) definidas en `apps/landing/next.config.ts`.
+
+Renovate (`.github/renovate.json`) cubre `npm` y `github-actions`. No hay Dependabot de version-updates.
