@@ -9,3 +9,8 @@ allowBuilds:
   unrs-resolver: true
   "@tailwindcss/oxide": true
   esbuild: true
+
+# Fuerza parches de seguridad en transitivos (pnpm ≥11: settings en este fichero).
+overrides:
+  undici: "^7.30.1"
+  source-map-js: "^1.2.2"
