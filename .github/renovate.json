@@ -2,16 +2,17 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
   "timezone": "Europe/Madrid",
+  "schedule": ["before 7am"],
   "labels": ["dependencies"],
-  "schedule": ["before 10am on monday"],
   "rangeStrategy": "bump",
   "dependencyDashboard": true,
+  "platformAutomerge": true,
   "semanticCommits": "enabled",
   "rebaseWhen": "behind-base-branch",
   "enabledManagers": ["npm", "github-actions"],
   "lockFileMaintenance": {
     "enabled": true,
-    "schedule": ["before 10am on monday"]
+    "schedule": ["before 7am on monday"]
   },
   "vulnerabilityAlerts": {
     "enabled": true,
@@ -19,28 +20,29 @@
   },
   "packageRules": [
     {
-      "matchManagers": ["npm"],
-      "matchDepTypes": ["dependencies"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "groupName": "npm production (non-major)",
-      "automerge": false
+      "description": "Automerge patch, pin y digest",
+      "matchUpdateTypes": ["patch", "pin", "digest"],
+      "automerge": true,
+      "automergeType": "pr"
     },
     {
-      "matchManagers": ["npm"],
-      "matchDepTypes": ["devDependencies"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "groupName": "npm development (non-major)",
-      "automerge": false
+      "description": "Agrupar y automergear minors",
+      "matchUpdateTypes": ["minor"],
+      "groupName": "minor dependencies",
+      "automerge": true,
+      "automergeType": "pr"
     },
     {
-      "matchManagers": ["github-actions"],
-      "groupName": "GitHub Actions",
-      "automerge": false
-    },
-    {
+      "description": "Majors: revisión humana, sin automerge",
       "matchUpdateTypes": ["major"],
-      "automerge": false,
-      "labels": ["dependencies", "breaking-change"]
+      "automerge": false
+    },
+    {
+      "description": "Agrupar GitHub Actions no-major",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "groupName": "github-actions",
+      "automerge": true
     }
   ]
 }

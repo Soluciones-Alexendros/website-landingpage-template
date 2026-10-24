@@ -22,7 +22,7 @@ El job `e2e` **siempre reporta** un check (éxito en skip) para no dejar un requ
 
 ## Renovate
 
-`.github/renovate.json` cubre `npm` y `github-actions`. No hay Dependabot de version-updates. Majors van con label `breaking-change` y sin automerge.
+`.github/renovate.json` cubre `npm` y `github-actions`. No hay Dependabot de version-updates. Automerge de patch/pin/digest y minors agrupados (`platformAutomerge`); majors sin automerge.
 
 ## Si CI falla
 
