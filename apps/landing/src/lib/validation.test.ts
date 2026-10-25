@@ -45,6 +45,22 @@ describe("leadSchema", () => {
     });
     expect(result.success).toBe(true);
   });
+
+  it("rechaza nombre ausente con mensaje en español", () => {
+    const result = leadSchema.safeParse({ email: "ada@example.com" });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.some((i) => i.message === "El nombre es obligatorio")).toBe(true);
+    }
+  });
+
+  it("rechaza email ausente con mensaje en español", () => {
+    const result = leadSchema.safeParse({ name: "Ada" });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.some((i) => i.message === "El email es obligatorio")).toBe(true);
+    }
+  });
 });
 
 describe("trackEventSchema", () => {
@@ -60,6 +76,25 @@ describe("trackEventSchema", () => {
 
   it("rechaza acción vacía", () => {
     const result = trackEventSchema.safeParse({ variant: "A", action: "" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rechaza meta con más de 20 claves", () => {
+    const meta = Object.fromEntries(Array.from({ length: 21 }, (_, i) => [`k${i}`, i]));
+    const result = trackEventSchema.safeParse({
+      variant: "A",
+      action: "cta_click",
+      meta,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rechaza meta que supera 2048 bytes", () => {
+    const result = trackEventSchema.safeParse({
+      variant: "A",
+      action: "cta_click",
+      meta: { payload: "x".repeat(2100) },
+    });
     expect(result.success).toBe(false);
   });
 });
