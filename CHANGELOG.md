@@ -8,9 +8,16 @@ y el versionado [SemVer](https://semver.org/lang/es/).
 
 ### Changed
 
+- Política Renovate más estricta: automerge solo en `devDependencies` y
+  `lockFileMaintenance`; majors con aprobación en Dependency Dashboard;
+  límites de concurrencia; alertas de seguridad con label `security`.
 - Alineación al canon P1+P2 de plantilla: jobs CI `quality` / `test` / `build` /
   `smoke`, e2e opt-in, Renovate en lugar de Dependabot version-updates, docs P1
   (`AGENTS`, `ARCHITECTURE`, guides/runbooks/ADRs) y meta-sección Propósito.
+
+### Security
+
+- Migración a Zod 4 (`^4.6.6`) para cerrar GHSA-mrhx-c7xc-m3w5.
 
 ### Added
 
