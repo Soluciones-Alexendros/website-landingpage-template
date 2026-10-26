@@ -92,7 +92,7 @@ jobs:
         run: pnpm build
 
       - name: Upload Next.js artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: next-build
           # `.next` es un directorio oculto; sin esto upload-artifact no encuentra archivos.
@@ -122,7 +122,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Download Next.js artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: next-build
           path: apps/landing/.next
