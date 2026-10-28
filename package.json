@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "Landing page con A/B testing reutilizable (PortfolioSaaS)",
-  "packageManager": "pnpm@11.8.0",
+  "packageManager": "pnpm@12.16.1",
   "engines": {
     "node": ">=22"
   },
