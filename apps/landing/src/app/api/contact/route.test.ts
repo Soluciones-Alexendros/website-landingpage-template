@@ -32,6 +32,23 @@ describe("POST /api/contact", () => {
   it("devuelve 422 con datos inválidos", async () => {
     const res = await POST(postRequest({ name: "A", email: "no-es-email" }));
     expect(res.status).toBe(422);
+    const json = (await res.json()) as { error: string; issues: unknown };
+    expect(json.error).toBe("Datos inválidos");
+    expect(json.issues).toBeTruthy();
+  });
+
+  it("devuelve 422 si el cuerpo es un array", async () => {
+    const res = await POST(postRequest([]));
+    expect(res.status).toBe(422);
+    const json = (await res.json()) as { error: string };
+    expect(json.error).toBe("Datos inválidos");
+  });
+
+  it("crea el lead si llega un campo array desconocido", async () => {
+    const res = await POST(
+      postRequest({ name: "Ada Lovelace", email: "ada@example.com", tags: ["uno"] }),
+    );
+    expect(res.status).toBe(201);
   });
 
   it("devuelve 400 con JSON inválido", async () => {

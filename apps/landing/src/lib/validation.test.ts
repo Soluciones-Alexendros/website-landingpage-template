@@ -61,6 +61,22 @@ describe("leadSchema", () => {
       expect(result.error.issues.some((i) => i.message === "El email es obligatorio")).toBe(true);
     }
   });
+
+  it("rechaza un array en la raíz", () => {
+    expect(leadSchema.safeParse([]).success).toBe(false);
+  });
+
+  it("ignora un campo array desconocido y conserva el lead válido", () => {
+    const result = leadSchema.safeParse({
+      name: "Ada",
+      email: "ada@example.com",
+      tags: ["uno", "dos"],
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data).not.toHaveProperty("tags");
+    }
+  });
 });
 
 describe("trackEventSchema", () => {
@@ -96,5 +112,9 @@ describe("trackEventSchema", () => {
       meta: { payload: "x".repeat(2100) },
     });
     expect(result.success).toBe(false);
+  });
+
+  it("rechaza un array en la raíz", () => {
+    expect(trackEventSchema.safeParse([]).success).toBe(false);
   });
 });
