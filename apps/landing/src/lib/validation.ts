@@ -5,12 +5,16 @@ import { VARIANTS } from "./db/types";
 /** Esquema del formulario de captura de leads. */
 export const leadSchema = z.object({
   name: z
-    .string({ required_error: "El nombre es obligatorio" })
+    .string({
+      error: (iss) => (iss.input === undefined ? "El nombre es obligatorio" : undefined),
+    })
     .trim()
     .min(2, "El nombre debe tener al menos 2 caracteres")
     .max(80, "El nombre es demasiado largo"),
   email: z
-    .string({ required_error: "El email es obligatorio" })
+    .string({
+      error: (iss) => (iss.input === undefined ? "El email es obligatorio" : undefined),
+    })
     .trim()
     .toLowerCase()
     .email("Introduce un email válido"),
@@ -34,7 +38,7 @@ export const trackEventSchema = z.object({
     .min(1, "La acción es obligatoria")
     .max(64, "La acción es demasiado larga"),
   meta: z
-    .record(z.unknown())
+    .record(z.string(), z.unknown())
     .refine(
       (m) => Object.keys(m).length <= META_MAX_KEYS && JSON.stringify(m).length <= META_MAX_BYTES,
       `meta no puede superar ${META_MAX_KEYS} claves ni ${META_MAX_BYTES} bytes`,

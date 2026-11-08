@@ -36,6 +36,16 @@ describe("POST /api/track-event", () => {
   it("rechaza variante inválida (422)", async () => {
     const res = await POST(postRequest({ variant: "C", action: "cta_click" }));
     expect(res.status).toBe(422);
+    const json = (await res.json()) as { error: string; issues: unknown };
+    expect(json.error).toBe("Datos inválidos");
+    expect(json.issues).toBeTruthy();
+  });
+
+  it("rechaza un array en la raíz (422)", async () => {
+    const res = await POST(postRequest([]));
+    expect(res.status).toBe(422);
+    const json = (await res.json()) as { error: string };
+    expect(json.error).toBe("Datos inválidos");
   });
 
   it("rechaza meta abusivamente grande (422)", async () => {
