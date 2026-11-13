@@ -40,4 +40,16 @@ Incluye en el reporte:
   entrada de usuario.
 - Cabeceras de seguridad (CSP, HSTS, etc.) definidas en `apps/landing/next.config.ts`.
 
-Renovate (`.github/renovate.json`) cubre `npm` y `github-actions`. No hay Dependabot de version-updates.
+Renovate (`.github/renovate.json`) cubre `npm` y `github-actions`. No hay Dependabot de
+version-updates (sí Alerts). Política de esta plantilla (más estricta que el canon
+hasta que se copie a `repo-standard`):
+
+- Automerge solo para patch/minor/pin/digest de **devDependencies** y para
+  `lockFileMaintenance`, con `platformAutomerge` y CI verde obligatoria.
+- Dependencias de producción y GitHub Actions: PR de revisión, sin automerge.
+- Majors: `dependencyDashboardApproval: true`, sin automerge y en PRs separados
+  (no se agrupan toolchain majors).
+- `vulnerabilityAlerts` con etiqueta `security`, sin automerge y fuera del
+  schedule (`at any time`).
+- Límites: `prConcurrentLimit: 5`, `prHourlyLimit: 2`; schedule `before 7am`
+  (`Europe/Madrid`).

@@ -9,40 +9,52 @@
   "platformAutomerge": true,
   "semanticCommits": "enabled",
   "rebaseWhen": "behind-base-branch",
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
   "enabledManagers": ["npm", "github-actions"],
   "lockFileMaintenance": {
     "enabled": true,
-    "schedule": ["before 7am on monday"]
+    "schedule": ["before 7am on monday"],
+    "automerge": true,
+    "automergeType": "pr"
   },
   "vulnerabilityAlerts": {
     "enabled": true,
-    "labels": ["security"]
+    "labels": ["security"],
+    "automerge": false,
+    "schedule": ["at any time"]
   },
   "packageRules": [
     {
-      "description": "Automerge patch, pin y digest",
-      "matchUpdateTypes": ["patch", "pin", "digest"],
+      "description": "Automerge patch/minor/pin/digest solo de devDependencies",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor", "pin", "digest"],
+      "groupName": "npm development (non-major)",
       "automerge": true,
       "automergeType": "pr"
     },
     {
-      "description": "Agrupar y automergear minors",
-      "matchUpdateTypes": ["minor"],
-      "groupName": "minor dependencies",
-      "automerge": true,
-      "automergeType": "pr"
-    },
-    {
-      "description": "Majors: revisión humana, sin automerge",
-      "matchUpdateTypes": ["major"],
+      "description": "Producción: PR de revisión, sin automerge",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["patch", "minor", "pin", "digest"],
+      "groupName": "npm production (non-major)",
       "automerge": false
     },
     {
-      "description": "Agrupar GitHub Actions no-major",
+      "description": "GitHub Actions no-major: revisión humana",
       "matchManagers": ["github-actions"],
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "groupName": "github-actions",
-      "automerge": true
+      "automerge": false
+    },
+    {
+      "description": "Majors: aprobación en Dependency Dashboard, sin automerge",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "dependencyDashboardApproval": true,
+      "labels": ["dependencies", "breaking-change"]
     }
   ]
 }
