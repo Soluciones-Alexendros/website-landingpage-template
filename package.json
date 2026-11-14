@@ -5,7 +5,7 @@
   "description": "Landing page con A/B testing reutilizable (PortfolioSaaS)",
   "packageManager": "pnpm@12.18.0",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.23.5"
   },
   "scripts": {
     "dev": "turbo run dev",
@@ -19,7 +19,7 @@
     "format:check": "prettier --check ."
   },
   "devDependencies": {
-    "prettier": "^3.9.10",
+    "prettier": "^3.10.1",
     "turbo": "^2.11.10",
     "typescript": "^5.9.3"
   }
